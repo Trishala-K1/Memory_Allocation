@@ -1,4 +1,5 @@
 #include "oslabs.h"
+#include <stdio.h>
 
 //checks for null block
 int check_null(struct MEMORY_BLOCK block){

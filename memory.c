@@ -21,7 +21,7 @@ struct MEMORY_BLOCK set_null(struct MEMORY_BLOCK *block)
 
 //........................................................................................................................................
 
-//memory block best fit allocation
+//best_fit_allocate:
 struct MEMORY_BLOCK best_fit_allocate(int request_size, struct MEMORY_BLOCK memory_map[MAPMAX],int *map_cnt, int process_id){
 	int sizeDiff = 10000;
 	int index = 0;
@@ -59,7 +59,7 @@ struct MEMORY_BLOCK best_fit_allocate(int request_size, struct MEMORY_BLOCK memo
 
 //........................................................................................................................................
 
-//memory first fit
+//first_fit_allocate:
 struct MEMORY_BLOCK first_fit_allocate(int request_size, struct MEMORY_BLOCK memory_map[MAPMAX],int *map_cnt, int process_id){
 	int sizeDiff = 10000;
 	int index = 0;
@@ -96,7 +96,7 @@ struct MEMORY_BLOCK first_fit_allocate(int request_size, struct MEMORY_BLOCK mem
 
 //........................................................................................................................................
 
-//memory worst fit
+//worst_fit_allocate:
 struct MEMORY_BLOCK worst_fit_allocate(int request_size, struct MEMORY_BLOCK memory_map[MAPMAX],int *map_cnt, int process_id){
 	int sizeDiff = 10000;
 	int index = 0;
@@ -134,7 +134,7 @@ struct MEMORY_BLOCK worst_fit_allocate(int request_size, struct MEMORY_BLOCK mem
 
 //........................................................................................................................................
 
-//memory next fir
+//next_fit_allocate:
 struct MEMORY_BLOCK next_fit_allocate(int request_size, struct MEMORY_BLOCK memory_map[MAPMAX],int *map_cnt, int process_id, int last_address){
 	int sizeDiff = 10000;
 	int index = 0;
@@ -172,7 +172,7 @@ struct MEMORY_BLOCK next_fit_allocate(int request_size, struct MEMORY_BLOCK memo
 
 //........................................................................................................................................
 
-//clears a block of memory
+//release memory
 void release_memory(struct MEMORY_BLOCK freed_block, struct MEMORY_BLOCK memory_map[MAPMAX],int *map_cnt){
 	int free_block;
 	for (int i = 0; i < *map_cnt; i++){

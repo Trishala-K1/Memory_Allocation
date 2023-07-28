@@ -23,39 +23,68 @@ struct MEMORY_BLOCK set_null(struct MEMORY_BLOCK *block)
 
 //best_fit_allocate:
 struct MEMORY_BLOCK best_fit_allocate(int request_size, struct MEMORY_BLOCK memory_map[MAPMAX],int *map_cnt, int process_id){
-	int sizeDiff = 10000;
-	int index = 0;
-	for (int i = 0; i < *map_cnt; i++){
-		if(memory_map[i].segment_size - request_size <= sizeDiff && memory_map[i].process_id == 0){
-			sizeDiff = memory_map[i].segment_size - request_size;
-			index = i;
-		}
-	}
-	if(sizeDiff == 10000){
-		struct MEMORY_BLOCK nullblock;
-		return set_null(&nullblock);
-	}
-	else if(sizeDiff == 0){
-		memory_map[index].process_id = process_id;
-		return memory_map[index];
-	}
-	else{
-		struct MEMORY_BLOCK chunk;
-		chunk.process_id = 0;
-		chunk.start_address = memory_map[index].start_address + request_size;
-		chunk.end_address = memory_map[index].end_address;
-		chunk.segment_size = chunk.end_address - chunk.start_address + 1;
-		memory_map[*map_cnt] = chunk;
-		(*map_cnt)++;
-		
-		memory_map[index].end_address = memory_map[index].start_address + request_size - 1;
-		memory_map[index].process_id = process_id;
-		memory_map[index].segment_size = request_size;
-		
-		return memory_map[index];
-		
-	}
-}
+	int i,difference,closest[*map_cnt];
+        int lowest = 99999;
+        /*
+        for(i=0;i<*map_cnt;i++){
+            difference =  memory_map[i].segment_size - request_size;
+            closest[i] = difference;
+        }
+        int index;
+        for(i=0;i<*map_cnt;i++){
+            if(closest[i] < lowest)
+                lowest = closest[i];
+                index = i;
+        }
+
+        */
+       for(i=0;i<*map_cnt;i++){
+           if(memory_map[i].segment_size >= request_size){
+                difference = memory_map[i].segment_size - request_size;
+                closest[i] = difference;
+                }
+            else{
+                closest[i] = -1;
+            }
+       }
+
+       int index;
+       for(i=0;i<*map_cnt;i++){
+           if(closest[i] != -1){
+               if(closest[i] <=lowest){
+               lowest = closest[i];
+               index = i;
+               }
+           }
+       }
+
+        struct MEMORY_BLOCK elem = memory_map[index]; 
+        if(elem.segment_size ==request_size ){
+            elem.process_id = process_id;
+            return elem;
+        }
+        else if (request_size <elem.segment_size){
+           struct MEMORY_BLOCK split1,split2;
+           
+           split1.process_id = process_id;
+           split1.segment_size = request_size;
+           split1.start_address = elem.start_address;
+           split1.end_address = elem.start_address + request_size-1;
+
+           split2.segment_size = elem.segment_size - split1.segment_size;
+           split2.process_id =0;
+           split2.start_address = split1.end_address+1;
+           split2.end_address = split2.start_address + split2.segment_size-1;
+           memory_map[*map_cnt] = split2;
+           memory_map[index] = split1;
+           *map_cnt += 1;
+           return split1;
+        }
+        
+        else
+        return NULLBLOCK; 
+
+    }
 
 //........................................................................................................................................
 

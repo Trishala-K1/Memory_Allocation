@@ -173,42 +173,39 @@ struct MEMORY_BLOCK next_fit_allocate(int request_size, struct MEMORY_BLOCK memo
 
 //........................................................................................................................................
 
-//release memory
-void release_memory(struct MEMORY_BLOCK freed_block, struct MEMORY_BLOCK memory_map[MAPMAX],int *map_cnt){
-	int free_block;
-	for (int i = 0; i < *map_cnt; i++){
-		if(freed_block.process_id == memory_map[i].process_id){
-			free_block = i;
-			break;
-		}
-	}
-	if (memory_map[free_block-1].process_id == 0 && memory_map[free_block + 1]. process_id == 0){
-		memory_map[free_block-1].end_address = memory_map[free_block + 1].end_address;
-		memory_map[free_block-1].segment_size = (memory_map[free_block-1].end_address - memory_map[free_block-1].start_address) + 1;
-		*map_cnt = *map_cnt - 2;
-		for(int i = free_block; i < *map_cnt; i++){
-			memory_map[i] = memory_map[i+2];
-        }
-	}
-	else if (memory_map[free_block-1].process_id ==0){
-		memory_map[free_block-1].end_address = memory_map[free_block].end_address;
-		memory_map[free_block-1].segment_size = (memory_map[free_block-1].end_address - memory_map[free_block-1].start_address) + 1;
-		*map_cnt = *map_cnt - 1;
-		for(int i = free_block; i < *map_cnt; i++){
-			memory_map[i] = memory_map[i+1];
-        }
-	}
-	else if (memory_map[free_block+1].process_id ==0){
-		memory_map[free_block].end_address = memory_map[free_block+1].end_address;
-		memory_map[free_block].segment_size = (memory_map[free_block].end_address - memory_map[free_block].start_address) + 1;
-		memory_map[free_block].process_id = 0;
-		*map_cnt = *map_cnt - 1;
-		for(int i = free_block; i < *map_cnt; i++){
-			memory_map[i] = memory_map[i+1];
-        }
-	}
-	else{
-		memory_map[free_block].process_id = 0;
-	}
+// Clears a block of memory
+void release_memory(struct MEMORY_BLOCK freed_block, struct MEMORY_BLOCK memory_map[MAPMAX], int *map_cnt) {
+    int free_block = -1;
 
+    // Find the index of the block to be released
+    for (int i = 0; i < *map_cnt; i++) {
+        if (freed_block.process_id == memory_map[i].process_id) {
+            free_block = i;
+            break;
+        }
+    }
+
+    // If the block is not found, return as it doesn't exist
+    if (free_block == -1) {
+        return;
+    }
+
+    // Set the process_id of the released block to 0 (indicating it's free)
+    memory_map[free_block].process_id = 0;
+
+    // Check for merging with the previous block
+    if (free_block > 0 && memory_map[free_block - 1].process_id == 0) {
+        memory_map[free_block - 1].end_address = memory_map[free_block].end_address;
+        memory_map[free_block - 1].segment_size = memory_map[free_block - 1].end_address - memory_map[free_block - 1].start_address + 1;
+        (*map_cnt)--;
+        free_block--;
+    }
+
+    // Check for merging with the next block
+    if (free_block < *map_cnt - 1 && memory_map[free_block + 1].process_id == 0) {
+        memory_map[free_block].end_address = memory_map[free_block + 1].end_address;
+        memory_map[free_block].segment_size = memory_map[free_block].end_address - memory_map[free_block].start_address + 1;
+        (*map_cnt)--;
+    }
 }
+
